@@ -13,7 +13,7 @@ class Product extends Model
         'name',
         'quantity',
         'unit',
-        'value',
+        'price',
         'weight'
     ];
 
