@@ -10,7 +10,7 @@ type Query {
     login(email: String @eq password: String @eq): User @find
 
     products:[Product!]! @all
-    addresses(user_id: ID @eq): [Addresses!]! @all
+    addresses: [Addresses!]! @all(model: "App\\Models\\Address")
     shipments(user_id: ID!): [Shipment] @all
     ShipmentProduct(shipment_id: ID @eq): [ShipmentProduct] @all
 }
@@ -68,4 +68,67 @@ type ShipmentProduct{
     user_id: ID!
     shipment_id: ID!
     product_id: ID
+}
+
+type Mutation {
+
+    "Create user."
+    signUp(
+        name: String! @rules(apply: ["min:3","required"])
+        email: String! @rules(apply: ["required","email","unique:users"])
+        password: String! @rules(apply: ["min:4","required"])
+    ): User! @create
+
+    "Log in to a new session and get the user."
+    login(
+        password: String! @rules(apply: ["min:4","required"])
+        email:String! @rules(apply: ["required","email"])
+    ): User! @field(resolver: "App\\Models\\Login")
+
+    "Log out from the current session, showing the user one last time."
+    logout: User @field(resolver: "App\\Models\\Logout")
+
+    updateUser(id: ID!, name: String, email: String): User @update
+
+
+
+
+    createProduct(
+        name: String
+        quantity: Int
+        unit: String
+        price: Float
+        weight: String
+    ): Product @create
+
+
+    createShipment(
+        address_id:ID!
+        customer_name:String
+        customer_country:String
+        customer_phone:String
+        customer_city:String
+        customer_details:String
+        customer_email:String
+        user_id: ID!): Shipment @create
+
+    createAddress(
+        city:String, 
+        country:String, 
+        street:String, 
+        details:String, 
+        user_id:ID!): Addresses @create(model: "App\\Models\\Address")
+
+    createShipmentProduct( 
+        user_id:Int
+        shipment_id:ID
+        product_qty:Int
+        product_id:Int): ShipmentProduct @create(model: "App\\Models\\ShipmentProduct")
+
+
+    deleteProduct(id:ID! @eq): Product @delete
+    deleteShipment(id:ID! @eq): Shipment @delete
+    deleteAddress(id:ID! @eq): Address @delete
+    deleteShipmentProduct(shipment_id:ID! @eq): Shipmentproduct @delete
+    
 }
